@@ -12,8 +12,6 @@ services:
 cache:
   directories:
     - $HOME/.cache/pip
-    - /home/travis/docker/aufs
-    - /home/travis/docker/container
     - /home/travis/docker/image
 
 env:
@@ -34,7 +32,7 @@ before_install:
   - mkdir -p "$DOCKER_CACHE_DIR"
   - sudo ln -s "$DOCKER_CACHE_DIR" /var/lib/docker
   - sudo service docker start
-  - du -lh "$DOCKER_CACHE_DIR"
+  - sudo du -lh "$DOCKER_CACHE_DIR"
 
 install:
   - pip install -r ci/requirements.txt
@@ -57,4 +55,4 @@ script:
           --password "$DOCKER_REGISTRY_PASSWORD" \
           "$DOCKER_REGISTRY_HOST"
       fi
-  - du -h "$DOCKER_CACHE_DIR"
+  - sudo du -h "$DOCKER_CACHE_DIR"
