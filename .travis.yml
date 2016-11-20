@@ -32,7 +32,6 @@ before_install:
   - mkdir -p "$DOCKER_CACHE_DIR"
   - sudo ln -s "$DOCKER_CACHE_DIR" /var/lib/docker
   - sudo service docker start
-  - sudo du -lh "$DOCKER_CACHE_DIR"
 
 install:
   - pip install -r ci/requirements.txt
@@ -49,10 +48,10 @@ script:
   - BOT_BASE_URL="https://localhost" python ci/run_bot_tests.py .
   - docker-compose kill
   - |
-      if [ "$TRAVIS_BRANCH" = "docker_cache_experimental" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+      if [ "$TRAVIS_BRANCH" = "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
         docker login \
           --username "$DOCKER_REGISTRY_LOGIN" \
           --password "$DOCKER_REGISTRY_PASSWORD" \
           "$DOCKER_REGISTRY_HOST"
+        docker-compose push
       fi
-  - sudo du -h "$DOCKER_CACHE_DIR"
