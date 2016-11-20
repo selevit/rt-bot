@@ -56,6 +56,5 @@ script:
           --username "$DOCKER_REGISTRY_LOGIN" \
           --password "$DOCKER_REGISTRY_PASSWORD" \
           "$DOCKER_REGISTRY_HOST"
-        rm -rf "${DOCKER_CACHE_DIR}/*"
       fi
   - du -h "$DOCKER_CACHE_DIR"
