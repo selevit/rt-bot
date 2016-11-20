@@ -55,3 +55,4 @@ script:
           "$DOCKER_REGISTRY_HOST"
         docker-compose push
       fi
+  - sudo chown -R "$USER" "$DOCKER_CACHE_DIR"
