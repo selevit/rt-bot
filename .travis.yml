@@ -32,7 +32,7 @@ before_install:
   - sudo service docker stop
   - sudo rm -rf /var/lib/docker
   - mkdir -p "$DOCKER_CACHE_DIR"
-  - sudo ln -s "$DOCKER_CACHE_DIR/var/lib/docker
+  - sudo ln -s "$DOCKER_CACHE_DIR" /var/lib/docker
   - sudo service docker start
   - du -lh "$DOCKER_CACHE_DIR"
 
