@@ -12,13 +12,15 @@ services:
 cache:
   directories:
     - $HOME/.cache/pip
-    - /home/travis/docker-cache
+    - /home/travis/docker/aufs
+    - /home/travis/docker/container
+    - /home/travis/docker/image
 
 env:
   SSL_KEY: nginx.key
   SSL_CERT: nginx.crt
   LETSENCRYPT: false
-  DOCKER_CACHE_DIR: /home/travis/docker-cache
+  DOCKER_CACHE_DIR: /home/travis/docker
   DOCKER_REGISTRY_NAMESPACE: rtbot
   DOCKER_REGISTRY_HOST: docker.io
   DOCKER_REGISTRY_LOGIN:
@@ -27,16 +29,12 @@ env:
 before_install:
   - pip install docker-compose==1.9.0
   - openssl req -x509 -nodes -days 365 -newkey rsa:2048 -subj "/C=US/ST=Test/L=Test/O=Dis/CN=localhost" -keyout "etc/ssl/${SSL_KEY}" -out "etc/ssl/${SSL_CERT}"
+  - sudo service docker stop
+  - rm -rf /var/lib/docker
   - mkdir -p "$DOCKER_CACHE_DIR"
-  - ls -lh "$DOCKER_CACHE_DIR"
-  - |
-      echo "Loading docker containers from cache..."
-      for DOCKER_CACHE_FILE in "$DOCKER_CACHE_DIR"/*; do
-        if [ -f "$DOCKER_CACHE_FILE" ]; then
-          echo "Loading docker container ${DOCKER_CACHE_FILE} in background..."
-          gunzip -c "${DOCKER_CACHE_FILE}" | docker load
-        fi
-      done
+  - sudo ln -s "$DOCKER_CACHE_DIR/var/lib/docker
+  - sudo service docker start
+  - du -lh "$DOCKER_CACHE_DIR"
 
 install:
   - pip install -r ci/requirements.txt
@@ -59,13 +57,5 @@ script:
           --password "$DOCKER_REGISTRY_PASSWORD" \
           "$DOCKER_REGISTRY_HOST"
         rm -rf "${DOCKER_CACHE_DIR}/*"
-        echo "Dumping docker containers to cache..."
-        docker images -q "${DOCKER_REGISTRY_NAMESPACE}/*" | \
-        while read image; do
-            echo "Dumping image ${image} in the background..."
-            full_image=$(docker history -q ${image} | grep -v '<missing>')
-            docker save $full_image | gzip > "$DOCKER_CACHE_DIR/$image.tar.gz" && docker rmi -f "$image"
-        done
       fi
   - du -h "$DOCKER_CACHE_DIR"
-  - ls -lh "$DOCKER_CACHE_DIR"
